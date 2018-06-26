@@ -1,3 +1,3 @@
-import { DEFAULT_FIELD_STYLE } from './styles'
+import { DEFAULT_FIELD_STYLE, SELECTED_FIELD_STYLE } from './styles'
 
-export { DEFAULT_FIELD_STYLE }
+export { DEFAULT_FIELD_STYLE, SELECTED_FIELD_STYLE }

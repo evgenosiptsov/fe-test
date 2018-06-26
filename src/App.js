@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Map, TileLayer, GeoJSON, LayersControl, ScaleControl, Tooltip } from 'react-leaflet';
+import { Map, TileLayer, GeoJSON, LayersControl, Popup, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import { DEFAULT_FIELD_STYLE } from './constants'
+import { DEFAULT_FIELD_STYLE, SELECTED_FIELD_STYLE } from './constants'
 import { SimpleComponent } from './components'
 import { getColor, fitBounds, getFieldYield} from './lib/fields'
 import farm from './data/farm.json';
@@ -17,17 +17,21 @@ class App extends Component {
     const { innerWidth: width, innerHeight: height } = window;
     const { center, zoom } = fitBounds(farm.fields, {width, height});
     const planted = {};
+    const forecasts = {};
+    const selected = null;
     this.state = {
         width,
         height,
         center,
         zoom,
         planted,
+        forecasts,
+        selected,
     };
   }
 
   render() {
-    const { width, height, center, zoom, planted } = this.state;
+    const { width, height, center, zoom, planted, selected } = this.state;
 
     return (
         <Map
@@ -36,39 +40,62 @@ class App extends Component {
           zoom={zoom}
           ref="map"
         >
-          <LayersControl position="bottomright">
+          <LayersControl position="bottomleft">
   
               <SimpleComponent position="topright" className="leaflet-control-actions">
-                <h1>Overall stat</h1>
+                  <div>
+                    <b>Overall stat</b>
+                    <span>Test</span>
+                  </div>
               </SimpleComponent>
             
               {farm.fields.map(field => {
-                  const { name, boundary } = field
-                  const plantedCrop[]
-                  const potentialYield = getFieldYield(field, planted[name])
-                  const fillColor = getColor(potentialYield);
-                  const style = Object.assign({}, DEFAULT_FIELD_STYLE, { fillColor });
+                  const { name: fieldName, boundary } = field;
+                  const cropName = planted[fieldName];
+                  const fieldYield = getFieldYield(field, crops[cropName]);
+                  const fillColor = getColor(fieldYield);
+                  const style = Object.assign({}, selected === fieldName ?  SELECTED_FIELD_STYLE : DEFAULT_FIELD_STYLE, { fillColor });
+
                   return (
                       <Overlay name={field.name} key={field.name} checked={true}>
                         <GeoJSON
-                            style={style}
-                            key={name}
+                            style={() => style}
+                            key={fieldName}
                             data={boundary}
                             checked={true}
+                            onMouseOut={() => this.setState({ selected: null})}
+                            onMouseOver={() => this.setState({ selected: fieldName})}
                         >
                           <Tooltip
                               permanent
-                              direction="topleft"
-                              offset={[0, 0]}
+                              direction="center"
                               className="leaflet-tooltip-field"
                           >
-                            <button>
-                              Change {getFieldYield(field, crops[0])}
-                            </button>
+                            <h3>
+                                {fieldName}
+                            </h3>
                           </Tooltip>
+                            <Popup
+                                position="bottom"
+                                closeButton={false}
+                            >
+                                <div>
+                                    Crops:
+                                    <div>
+                                    {crops.map((crop) => {
+                                        return (
+                                            <button>
+                                                {crop.name}
+                                            </button>
+                                        )
+                                    })}
+                                    </div>
+                                </div>
+                            </Popup>
                         </GeoJSON>
                       </Overlay>
                   )
+
                 }
               )}
   
@@ -78,7 +105,7 @@ class App extends Component {
 
             <SimpleComponent position="bottomleft" className="leaflet-control-actions">
                 <div>
-                    Crops:
+                    Forecasts:
                     {crops.map((crop) => {
                         return (
                             <div>

@@ -8,6 +8,7 @@ body {
   border: none !important;
   box-shadow: none!important;
   background-color: transparent !important;
+  z-index: 9999 !important;
 }
 
 .leaflet-tooltip-field:before {
