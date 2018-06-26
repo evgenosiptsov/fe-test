@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { DEFAULT_FIELD_STYLE } from './constants'
 import { SimpleComponent } from './components'
-import { getColor, fitBounds} from './lib/fields'
+import { getColor, fitBounds, getFieldYield} from './lib/fields'
 import farm from './data/farm.json';
 import crops from './data/crops.json';
 
@@ -14,28 +14,30 @@ class App extends Component {
   
   constructor(props) {
     super(props);
-    this.state = { width: '100%', height: '800px' };
-  }
-
-  componentDidMount() {
-    //TODO: bind listeners to window.resize
-    this.setState({ width: window.innerWidth, height: window.innerHeight });
+    const { innerWidth: width, innerHeight: height } = window;
+    const { center, zoom } = fitBounds(farm.fields, {width, height})
+    this.state = {
+        width,
+        height,
+        center,
+        zoom
+    };
   }
 
   render() {
-    const { width, height } = this.state;
-    const { center, zoom } = fitBounds(farm.fields, {width, height})
+    const { width, height, center, zoom } = this.state;
 
     return (
         <Map
           style={{ width, height }}
-          center={farm.centre.coordinates}
-          zoom={12}
+          center={center}
+          zoom={zoom}
+          ref="map"
         >
           <LayersControl position="topright">
   
               <SimpleComponent position="topright" >
-                <h1>Title</h1>
+                <h1>Overall stat</h1>
               </SimpleComponent>
             
               {farm.fields.map(field => {
@@ -56,7 +58,7 @@ class App extends Component {
                               className="leaflet-tooltip-field"
                           >
                             <button>
-                              Change
+                              Change {getFieldYield(field, crops[0])}
                             </button>
                           </Tooltip>
                         </GeoJSON>
@@ -68,7 +70,10 @@ class App extends Component {
             <SimpleComponent position="bottomright" >
               <h1>!!!</h1>
             </SimpleComponent>
-  
+
+            <SimpleComponent position="bottomleft" >
+                <h1>Add crops</h1>
+            </SimpleComponent>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             
           </LayersControl>
