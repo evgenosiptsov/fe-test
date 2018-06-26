@@ -1,4 +1,4 @@
-import { Component, Children } from 'react';
+import { Children } from 'react';
 import { Control, DomUtil, DomEvent } from 'leaflet';
 import { MapControl } from 'react-leaflet';
 import PropTypes from 'prop-types';
@@ -35,10 +35,6 @@ export default class SimpleControl extends MapControl {
 		popupContainer: PropTypes.object,
 		position: PropTypes.string
 	};
-	
-	constructor(props){
-		super(props);
-	}
 	
 	componentWillMount() {
 		const { children: _children, map: _map, popupContainer, ...props } = this.props;
