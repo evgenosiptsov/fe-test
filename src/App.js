@@ -15,17 +15,19 @@ class App extends Component {
   constructor(props) {
     super(props);
     const { innerWidth: width, innerHeight: height } = window;
-    const { center, zoom } = fitBounds(farm.fields, {width, height})
+    const { center, zoom } = fitBounds(farm.fields, {width, height});
+    const planted = {};
     this.state = {
         width,
         height,
         center,
-        zoom
+        zoom,
+        planted,
     };
   }
 
   render() {
-    const { width, height, center, zoom } = this.state;
+    const { width, height, center, zoom, planted } = this.state;
 
     return (
         <Map
@@ -34,21 +36,24 @@ class App extends Component {
           zoom={zoom}
           ref="map"
         >
-          <LayersControl position="topright">
+          <LayersControl position="bottomright">
   
-              <SimpleComponent position="topright" >
+              <SimpleComponent position="topright" className="leaflet-control-actions">
                 <h1>Overall stat</h1>
               </SimpleComponent>
             
               {farm.fields.map(field => {
-                  const fillColor = getColor(500);
-                  const style = { DEFAULT_FIELD_STYLE, ...{fillColor}};
+                  const { name, boundary } = field
+                  const plantedCrop[]
+                  const potentialYield = getFieldYield(field, planted[name])
+                  const fillColor = getColor(potentialYield);
+                  const style = Object.assign({}, DEFAULT_FIELD_STYLE, { fillColor });
                   return (
                       <Overlay name={field.name} key={field.name} checked={true}>
                         <GeoJSON
                             style={style}
-                            key={field.name}
-                            data={field.boundary}
+                            key={name}
+                            data={boundary}
                             checked={true}
                         >
                           <Tooltip
@@ -67,12 +72,21 @@ class App extends Component {
                 }
               )}
   
-            <SimpleComponent position="bottomright" >
-              <h1>!!!</h1>
+            <SimpleComponent position="bottomright" className="leaflet-control-actions">
+              <div>Legend</div>
             </SimpleComponent>
 
-            <SimpleComponent position="bottomleft" >
-                <h1>Add crops</h1>
+            <SimpleComponent position="bottomleft" className="leaflet-control-actions">
+                <div>
+                    Crops:
+                    {crops.map((crop) => {
+                        return (
+                            <div>
+                                {crop.name}
+                            </div>
+                        )
+                    })}
+                </div>
             </SimpleComponent>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             

@@ -35,12 +35,17 @@ export function fitBounds(fields, { width, height }) {
 }
 
 /**
- * Crop Yield Average * Hectares of Field / (Crop Risk Factor * Field Disease Susceptibility) * price
+ * Crop Yield Average * Hectares of Field / (Crop Risk Factor * Field Disease Susceptibility) * price per tonne
  * @param field
  * @param crop
  * @returns {number}
  */
 export function getFieldYield(field, crop) {
+
+    if (!crop) {
+        return null;
+    }
+
     const {
         disease_risk_factor: cropRiskFactor,
         expected_yield:  cropYieldAverage,

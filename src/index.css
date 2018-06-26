@@ -13,3 +13,11 @@ body {
 .leaflet-tooltip-field:before {
   border: none !important;
 }
+
+.leaflet-control-actions {
+  border: 2px solid rgba(0,0,0,0.2);
+  background-clip: padding-box;
+  background: #fff;
+  border-radius: 5px;
+  padding: 10px;
+}
