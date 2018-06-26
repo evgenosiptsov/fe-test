@@ -60,6 +60,19 @@ export function getYieldOfField(field, crop) {
     return (cropYieldAverage * hectaresOfField / (cropRiskFactor * fieldDiseaseSusceptibility)) * pricePerTonne
 }
 
+/**
+ * Get all yields
+ * @param fields
+ * @param plantedFields
+ */
+export function getYields(fields, plantedFields) {
+    let yields = {}
+    fields.filter((field) => plantedFields[field.name]).forEach((field) => {
+        yields[field.name] = getYieldOfField(field, plantedFields[field.name]);
+    });
+    return yields;
+}
+
 
 
 

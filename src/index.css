@@ -30,3 +30,29 @@ small {
   border-radius: 5px;
   padding: 10px;
 }
+
+.crops {
+  overflow: hidden;
+}
+
+.crops-item {
+  display: inline-block;
+  width: 30%;
+  color: darkgray;
+  overflow: hidden;
+  margin-right: 10px;
+  text-align: center;
+}
+.crops--selected .crops-item{
+  width: 100%;
+}
+.crops-item-button{
+  width: 100%;
+  height: 30px;
+  background-color: whitesmoke;
+  border-radius: 5px;
+  border: 1px solid darkgray;
+}
+.crops-item-text{
+
+}

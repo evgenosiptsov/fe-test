@@ -4,7 +4,7 @@ export const DEFAULT_FIELD_STYLE = {
 	color: 'white',
 	dashArray: '3',
 	fillOpacity: 0.6,
-	strole: 'white',
+	stroke: 'white',
 };
 
 export const SELECTED_FIELD_STYLE = {
@@ -13,5 +13,5 @@ export const SELECTED_FIELD_STYLE = {
     color: 'green',
     dashArray: '0',
     fillOpacity: 1,
-    strole: 'white',
+    stroke: 'white',
 };

@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { DEFAULT_FIELD_STYLE, SELECTED_FIELD_STYLE } from './constants'
 import { SimpleComponent } from './components'
-import { getColor, fitBounds, getYieldOfField} from './lib/fields'
+import { getColor, fitBounds, getYieldOfField, getYields} from './lib/fields'
 import farm from './data/farm.json';
 import crops from './data/crops.json';
 
@@ -14,19 +14,23 @@ class App extends Component {
   
   constructor(props) {
     super(props);
+    const { fields } = farm;
     const { innerWidth: width, innerHeight: height } = window;
-    const { center, zoom } = fitBounds(farm.fields, {width, height});
-    const plantedFields = {};
+    const { center, zoom } = fitBounds(fields, {width, height});
     const forecasts = {};
     const selectedField = {};
+    const plantedFields = {};
+    const yields = getYields(fields, plantedFields);
     this.state = {
+        fields,
         width,
         height,
         center,
         zoom,
         plantedFields,
-        forecasts,
         selectedField,
+        yields,
+        forecasts,
     };
   }
 
@@ -43,24 +47,33 @@ class App extends Component {
   }
 
   onPlantCrop(field, crop) {
-      const { name } = field;
-      const rel = {}
+      const { fields } = this.state;
+      let plantedFields = { ... this.state.plantedFields };
+      plantedFields[field.name] = crop
 
-      rel[name] = crop;
-
-      const plantedFields = { ...this.state.plantedFields, ...rel }
+      const yields = getYields(fields, plantedFields);
 
       this.setState({
           plantedFields,
+          yields
       })
   }
 
-  removeCrop() {
+  onRemoveCrop(field) {
+      const { fields } = this.state;
+      let plantedFields = { ... this.state.plantedFields };
+      delete plantedFields[field.name];
 
+      const yields = getYields(fields, plantedFields);
+
+      this.setState({
+          plantedFields,
+          yields,
+      })
   }
 
   render() {
-    const { width, height, center, zoom, plantedFields, selectedField } = this.state;
+    const { width, height, center, zoom, plantedFields, selectedField, fields, yields } = this.state;
 
     return (
         <Map
@@ -73,7 +86,8 @@ class App extends Component {
   
               <SimpleComponent position="topright" className="leaflet-control-actions">
                   <div>
-                    <h2>Farmer dashborard</h2>
+                    <h2>{farm.name}</h2>
+
                       { !Object.keys(selectedField).length ?
                           <div>
                               <small>Hover over your fields</small>
@@ -91,20 +105,19 @@ class App extends Component {
                   </div>
               </SimpleComponent>
             
-              {farm.fields.map(field => {
-                  const { name: fieldName, boundary } = field;
-                  const crop = plantedFields[fieldName];
-                  const yieldOfField = getYieldOfField(field, crop);
+              {fields.map(field => {
+
+                  const crop = plantedFields[field.name];
 
                   return (
                       <Overlay name={field.name} key={field.name} checked={true}>
                         <GeoJSON
                             style={() => {
-                                const fillColor = getColor(yieldOfField);
+                                const fillColor = getColor(yields[field.name]);
                                 return {...(selectedField.name === field.name ?  SELECTED_FIELD_STYLE : DEFAULT_FIELD_STYLE), fillColor}
                             }}
-                            key={fieldName}
-                            data={boundary}
+                            key={field.name}
+                            data={field.boundary}
                             checked={true}
                             onMouseOut={() => this.setState({ selectedField: {}})}
                             onMouseOver={() => this.onSelectField(field)}
@@ -115,26 +128,43 @@ class App extends Component {
                               className="leaflet-tooltip-field"
                           >
                             <h3>
-                                {fieldName}
+                                {yields[field.name] ? Math.round(yields[field.name]) : null}
                             </h3>
                           </Tooltip>
                             <Popup
                                 position="bottom"
-                                closeButton={false}
                             >
                                 <div>
                                     <h3>
-                                        {fieldName}
+                                        {field.name}
                                     </h3>
-                                    Plant crops:
-                                    <div>
+                                    { plantedFields[field.name] ?
+                                        <div className="crops--selected">
+                                            <div className="crops-item">
+                                                <button className="crops-item-button" onClick={() => this.onRemoveCrop(field)}>
+                                                    Remove {plantedFields[field.name].name}
+                                                </button>
+                                            </div>
+                                            <hr/>
+                                            Replace crop with:
+                                        </div>
+                                            :
+                                        <div>
+                                            Select crop:
+                                        </div>
+                                    }
+
+                                    <div className="crops">
                                     {crops.map((crop) => {
                                         return (
-                                            <button
-                                                onClick={() => this.onPlantCrop(field, crop)}
-                                            >
-                                                {crop.name}
-                                            </button>
+                                            <div className="crops-item">
+                                                <button className="crops-item-button" onClick={() => this.onPlantCrop(field, crop)}>
+                                                    Add
+                                                </button>
+                                                <div className="crops-item-text">
+                                                    {crop.name}
+                                                </div>
+                                            </div>
                                         )
                                     })}
                                     </div>
@@ -148,13 +178,24 @@ class App extends Component {
               )}
   
             <SimpleComponent position="bottomright" className="leaflet-control-actions">
-              <div>Yields</div>
+                <div>
+                    <h3>Yields</h3>
+                    {[0, 10, 20, 50, 100, 200, 500, 1000].reverse().map((grade, index) => {
+                        const backgroundColor = getColor(grade)
+
+                        return (
+                            <div>
+                                <span style={{ backgroundColor, display: 'inline-block', width: 20 }}> &nbsp; </span> {grade} +
+                            </div>
+                        )
+                    })}
+                </div>
 
             </SimpleComponent>
 
             <SimpleComponent position="bottomleft" className="leaflet-control-actions">
                 <div>
-                    Forecasts:
+                    <h3>Forecasts</h3>
                     {crops.map((crop) => {
                         return (
                             <div>
