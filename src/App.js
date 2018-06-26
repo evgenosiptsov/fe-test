@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 
 import { DEFAULT_FIELD_STYLE, SELECTED_FIELD_STYLE } from './constants'
 import { SimpleComponent } from './components'
-import { getColor, fitBounds, getFieldYield} from './lib/fields'
+import { getColor, fitBounds, getYieldOfField} from './lib/fields'
 import farm from './data/farm.json';
 import crops from './data/crops.json';
 
@@ -16,22 +16,51 @@ class App extends Component {
     super(props);
     const { innerWidth: width, innerHeight: height } = window;
     const { center, zoom } = fitBounds(farm.fields, {width, height});
-    const planted = {};
+    const plantedFields = {};
     const forecasts = {};
-    const selected = null;
+    const selectedField = {};
     this.state = {
         width,
         height,
         center,
         zoom,
-        planted,
+        plantedFields,
         forecasts,
-        selected,
+        selectedField,
     };
   }
 
+  onSelectField(field) {
+      const { name } = field;
+      const { plantedFields } = this.state;
+      const crop = plantedFields[name] || {};
+
+      const selectedField = { ...field, ... { crop }}
+
+      this.setState({
+          selectedField
+      })
+  }
+
+  onPlantCrop(field, crop) {
+      const { name } = field;
+      const rel = {}
+
+      rel[name] = crop;
+
+      const plantedFields = { ...this.state.plantedFields, ...rel }
+
+      this.setState({
+          plantedFields,
+      })
+  }
+
+  removeCrop() {
+
+  }
+
   render() {
-    const { width, height, center, zoom, planted, selected } = this.state;
+    const { width, height, center, zoom, plantedFields, selectedField } = this.state;
 
     return (
         <Map
@@ -44,27 +73,41 @@ class App extends Component {
   
               <SimpleComponent position="topright" className="leaflet-control-actions">
                   <div>
-                    <b>Overall stat</b>
-                    <span>Test</span>
+                    <h2>Farmer dashborard</h2>
+                      { !Object.keys(selectedField).length ?
+                          <div>
+                              <small>Hover over your fields</small>
+                          </div> :
+                          <div>
+                              <h3>
+                                {selectedField.name}
+                              </h3>
+                              <div>
+                                { selectedField.crop.name ? `${selectedField.crop.name} is cropped` :  null}
+                              </div>
+                              <small>Click on your field for more</small>
+                          </div>
+                      }
                   </div>
               </SimpleComponent>
             
               {farm.fields.map(field => {
                   const { name: fieldName, boundary } = field;
-                  const cropName = planted[fieldName];
-                  const fieldYield = getFieldYield(field, crops[cropName]);
-                  const fillColor = getColor(fieldYield);
-                  const style = Object.assign({}, selected === fieldName ?  SELECTED_FIELD_STYLE : DEFAULT_FIELD_STYLE, { fillColor });
+                  const crop = plantedFields[fieldName];
+                  const yieldOfField = getYieldOfField(field, crop);
 
                   return (
                       <Overlay name={field.name} key={field.name} checked={true}>
                         <GeoJSON
-                            style={() => style}
+                            style={() => {
+                                const fillColor = getColor(yieldOfField);
+                                return {...(selectedField.name === field.name ?  SELECTED_FIELD_STYLE : DEFAULT_FIELD_STYLE), fillColor}
+                            }}
                             key={fieldName}
                             data={boundary}
                             checked={true}
-                            onMouseOut={() => this.setState({ selected: null})}
-                            onMouseOver={() => this.setState({ selected: fieldName})}
+                            onMouseOut={() => this.setState({ selectedField: {}})}
+                            onMouseOver={() => this.onSelectField(field)}
                         >
                           <Tooltip
                               permanent
@@ -80,11 +123,16 @@ class App extends Component {
                                 closeButton={false}
                             >
                                 <div>
-                                    Crops:
+                                    <h3>
+                                        {fieldName}
+                                    </h3>
+                                    Plant crops:
                                     <div>
                                     {crops.map((crop) => {
                                         return (
-                                            <button>
+                                            <button
+                                                onClick={() => this.onPlantCrop(field, crop)}
+                                            >
                                                 {crop.name}
                                             </button>
                                         )
@@ -100,7 +148,8 @@ class App extends Component {
               )}
   
             <SimpleComponent position="bottomright" className="leaflet-control-actions">
-              <div>Legend</div>
+              <div>Yields</div>
+
             </SimpleComponent>
 
             <SimpleComponent position="bottomleft" className="leaflet-control-actions">

@@ -40,7 +40,7 @@ export function fitBounds(fields, { width, height }) {
  * @param crop
  * @returns {number}
  */
-export function getFieldYield(field, crop) {
+export function getYieldOfField(field, crop) {
 
     if (!crop) {
         return null;

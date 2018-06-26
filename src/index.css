@@ -4,6 +4,14 @@ body {
   font-family: sans-serif;
 }
 
+h1, h2, h3 {
+  margin: 5px 0px;
+}
+
+small {
+  color: darkgrey;
+  font-size: 100%;
+}
 .leaflet-tooltip-field {
   border: none !important;
   box-shadow: none!important;
