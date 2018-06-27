@@ -53,6 +53,7 @@ small {
   overflow: hidden;
   margin-right: 10px;
   text-align: center;
+  vertical-align: top;
 }
 .crops--selected .crops-item{
   width: 100%;
@@ -67,7 +68,22 @@ small {
   background-color: whitesmoke;
   border-radius: 5px;
   border: 1px solid darkgray;
+  box-shadow: 0px 3px 8px transparent;
+  transition: all 0.1s;
+  cursor: pointer;
+}
+
+.crops-item-button--disabled {
+  color: darkgray !important;
+  background: white !important;
+  box-shadow: 0px 3px 8px transparent !important;
+}
+.crops-item-button:HOVER{
+  box-shadow: 0px 3px 8px #b9e2e4;
 }
 .crops-item-text{
-
+  font-size: 11px !important;
+  line-height: 12px;
+  padding-bottom: 10px;
+  padding-top: 3px;
 }
