@@ -1,19 +1,19 @@
 export function getColor(d) {
-	return d > 1000 ? '#800026' :
-		d > 500  ? '#BD0026' :
-		d > 200  ? '#E31A1C' :
-		d > 100  ? '#FC4E2A' :
-		d > 50   ? '#FD8D3C' :
-		d > 20   ? '#FEB24C' :
-		d > 10   ? '#FED976' : '#FFEDA0';
+    return d > 1000 ? '#800026' :
+        d > 500 ? '#BD0026' :
+            d > 200 ? '#E31A1C' :
+                d > 100 ? '#FC4E2A' :
+                    d > 50 ? '#FD8D3C' :
+                        d > 20 ? '#FEB24C' :
+                            d > 10 ? '#FED976' : '#FFEDA0';
 }
 
-export function fitBounds(fields, { width, height }) {
+export function fitBounds(fields, {width, height}) {
 
     const lists = fields.reduce(([allLatitudes, allLongitudes], field) => {
         const fieldCoordinates = field.boundary.coordinates[0];
-        const fieldLatitudes = fieldCoordinates.map((fc) => fc[0])
-        const fieldLongitudes = fieldCoordinates.map((fc) => fc[1])
+        const fieldLatitudes = fieldCoordinates.map((fc) => fc[0]);
+        const fieldLongitudes = fieldCoordinates.map((fc) => fc[1]);
 
         return [allLatitudes.concat(fieldLatitudes), allLongitudes.concat(fieldLongitudes)]
     }, [[], []]);
@@ -66,13 +66,32 @@ export function getYieldOfField(field, crop) {
  * @param plantedFields
  */
 export function getYields(fields, plantedFields) {
-    let yields = {}
+    let yields = {};
     fields.filter((field) => plantedFields[field.name]).forEach((field) => {
         yields[field.name] = getYieldOfField(field, plantedFields[field.name]);
     });
     return yields;
 }
 
+
+export function makeForecasts(fields, crops) {
+    let forecasts = {};
+    let greatestTotalYield = 0;
+    //TODO rough calculations
+    fields.forEach((field) => {
+        if (!forecasts[field.name]) {
+            forecasts[field.name] = {};
+        }
+        crops.forEach((crop) => {
+            forecasts[field.name][crop.name] = getYieldOfField(field, crop);
+        });
+        greatestTotalYield = greatestTotalYield + Math.max.apply(Math, Object.values(forecasts[field.name]))
+    });
+    return {
+        greatestTotalYield,
+        forecasts
+    };
+}
 
 
 

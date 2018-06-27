@@ -8,10 +8,20 @@ h1, h2, h3 {
   margin: 5px 0px;
 }
 
+h1 {
+  margin: 0px;
+}
+
 small {
   color: darkgrey;
   font-size: 100%;
 }
+
+
+.leaflet-container{
+  font-size: 14px !important;
+}
+
 .leaflet-tooltip-field {
   border: none !important;
   box-shadow: none!important;
@@ -24,11 +34,12 @@ small {
 }
 
 .leaflet-control-actions {
-  border: 2px solid rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.2);
   background-clip: padding-box;
-  background: #fff;
+  background: #ffffffc2;
   border-radius: 5px;
   padding: 10px;
+  box-shadow: 1px 1px 1px #0000001c;
 }
 
 .crops {
@@ -45,6 +56,10 @@ small {
 }
 .crops--selected .crops-item{
   width: 100%;
+}
+
+.crops--selected .crops-item-button {
+  background-color: transparent;
 }
 .crops-item-button{
   width: 100%;
