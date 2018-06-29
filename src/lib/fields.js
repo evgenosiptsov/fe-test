@@ -1,3 +1,5 @@
+import { LatLng, LatLngBounds } from 'leaflet';
+
 export function getColor(d) {
   return d > 1000 ? '#800026' :
       d > 500 ? '#BD0026' :
@@ -18,19 +20,12 @@ export function fitBounds(fields, { width, height }) {
       return [allLatitudes.concat(fieldLatitudes), allLongitudes.concat(fieldLongitudes)]
     }, [[], []]);
 
-  const northWestPoint = {
-      lat: Math.min.apply(Math, lists[0]),
-      lng: Math.min.apply(Math, lists[1]),
-    };
-
-  const southEastPoint = {
-      lat: Math.max.apply(Math, lists[0]),
-      lng: Math.max.apply(Math, lists[1]),
-    };
-
+  const northEast = new LatLng(Math.max.apply(Math, lists[1]), Math.max.apply(Math, lists[0]))
+  const southWest = new LatLng(Math.min.apply(Math, lists[1]), Math.min.apply(Math, lists[0]))
+    
   return {
-      center: [(northWestPoint.lng + southEastPoint.lng) / 2, (northWestPoint.lat + southEastPoint.lat) / 2],
-      zoom: 14, //TODO calculate zoom
+      center: [(northEast.lat + southWest.lat) / 2, (northEast.lng + southWest.lng) / 2],
+	  bounds: new LatLngBounds(southWest, northEast),
     }
 }
 

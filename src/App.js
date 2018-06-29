@@ -5,7 +5,7 @@ import {
 	GeoJSON,
 	LayersControl,
 	Popup,
-	Tooltip
+	Tooltip,
 } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import farm from './data/farm.json';
@@ -32,21 +32,17 @@ class App extends Component {
 		super(props);
 		const { fields } = farm;
 		const { innerWidth: width, innerHeight: height } = window;
-		const { center, zoom } = fitBounds(fields, { width, height });
+		const { bounds } = fitBounds(fields, { width, height });
 		const { forecasts, greatestTotalYield } = makeForecasts(fields, crops);
 		const recommendations = makeRecommendations(fields, crops);
 		const selectedField = {};
 		const plantedFields = {};
 		const yields = getYields(fields, plantedFields);
 		
-		console.log(recommendations);
-		
 		this.state = {
 			fields,
 			width,
 			height,
-			center,
-			zoom,
 			plantedFields,
 			selectedField,
 			yields,
@@ -54,6 +50,8 @@ class App extends Component {
 			recommendations,
 			greatestTotalYield,
 		};
+		
+		this.mapRef = React.createRef();
 	}
 	
 	onSelectField(field) {
@@ -95,16 +93,16 @@ class App extends Component {
 	}
 
 	render() {
-		const { width, height, center, zoom, plantedFields, selectedField, fields, yields, forecasts, recommendations, greatestTotalYield } = this.state;
+		const { width, height, bounds, plantedFields, selectedField, fields, yields, forecasts, recommendations, greatestTotalYield } = this.state;
 		const totalYield = Object.keys(yields).reduce((totalYield, fieldName) =>
 			totalYield + yields[fieldName], 0
 		);
-	
+		
 	    return (
 	        <Map
 	            style={{ width, height }}
-	            center={center}
-	            zoom={zoom}
+	            bounds={bounds}
+	            ref={this.mapRef}
 	        >
 				<LayersControl position="bottomright" collapsed={true}>
 					
@@ -124,13 +122,11 @@ class App extends Component {
                             }
                         </div>
                     </SimpleComponent>
-
+					
                     {fields.map(field => {
-
                         return (
-                            <Overlay name={field.name} key={field.name} checked>
+	                        <Overlay name={field.name} key={field.name} ref={this.boundLayer} checked>
 	                            <GeoJSON
-                                    key={field.name}
                                     data={field.boundary}
                                     onMouseOut={() => this.setState({ selectedField: {} })}
                                     onMouseOver={() => this.onSelectField(field)}
@@ -198,10 +194,10 @@ class App extends Component {
                                         </div>
                                     </Popup>
                                 </GeoJSON>
-                            </Overlay>
+	                        </Overlay>
                         )
                     })}
-
+					
                     <SimpleComponent position="bottomright" className="leaflet-control-actions">
                         <div>
                             <h3>Yields</h3>
