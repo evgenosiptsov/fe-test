@@ -15,9 +15,15 @@
     "redux": "^4.0.0"
   },
   "scripts": {
+    "build-css": "stylus -c src/styles/stylus/ --out src/styles/css",
+    "watch-css": "npm run build-css && stylus -c -w src/styles/stylus/ --out src/styles/css",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom --verbose --notify",
     "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2"
   }
 }

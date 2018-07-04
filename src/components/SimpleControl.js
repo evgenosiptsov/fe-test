@@ -38,7 +38,6 @@ export default class SimpleControl extends MapControl {
 	
 	componentWillMount() {
 		const { children: _children, map: _map, popupContainer, ...props } = this.props;
-		
 		this.leafletElement = new leafletControl(props);
 	}
 	

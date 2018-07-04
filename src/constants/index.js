@@ -1,9 +1,11 @@
 import { DEFAULT_FIELD_STYLE, SELECTED_FIELD_STYLE } from './styles'
 import { FARM_ENDPOINT, CROPS_ENDPOINT } from './endpoints'
+import { DEFAULT_BOUNDS } from './default'
 
 export {
 	DEFAULT_FIELD_STYLE,
 	SELECTED_FIELD_STYLE,
 	FARM_ENDPOINT,
 	CROPS_ENDPOINT,
+	DEFAULT_BOUNDS,
 }

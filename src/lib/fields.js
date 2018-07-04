@@ -10,7 +10,7 @@ export function getColor(d) {
                           d > 10 ? '#FED976' : '#FFEDA0';
 }
 
-export function fitBounds(fields, { width, height }) {
+export function fitBounds(fields) {
 
   const lists = fields.reduce(([allLatitudes, allLongitudes], field) => {
       const fieldCoordinates = field.boundary.coordinates[0];
@@ -23,10 +23,7 @@ export function fitBounds(fields, { width, height }) {
   const northEast = new LatLng(Math.max.apply(Math, lists[1]), Math.max.apply(Math, lists[0]))
   const southWest = new LatLng(Math.min.apply(Math, lists[1]), Math.min.apply(Math, lists[0]))
     
-  return {
-      center: [(northEast.lat + southWest.lat) / 2, (northEast.lng + southWest.lng) / 2],
-	  bounds: new LatLngBounds(southWest, northEast),
-    }
+  return new LatLngBounds(southWest, northEast);
 }
 
 /**
@@ -72,7 +69,7 @@ export function getYields(fields, plantedFields) {
 
 export function makeForecasts(fields, crops) {
   let forecasts = {};
-  let greatestTotalYield = 0;
+  let potential = 0;
     
   //TODO rough calculations
   fields.forEach((field) => {
@@ -83,11 +80,11 @@ export function makeForecasts(fields, crops) {
       crops.forEach((crop) => {
           forecasts[field.name][crop.name] = getYieldOfField(field, crop);
         });
-      greatestTotalYield = greatestTotalYield + Math.max.apply(Math, Object.values(forecasts[field.name]))
+      potential = potential + Math.max.apply(Math, Object.values(forecasts[field.name]))
     });
 	
   return {
-      greatestTotalYield,
+	  potential,
       forecasts,
 	};
 }
